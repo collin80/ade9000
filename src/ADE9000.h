@@ -257,7 +257,7 @@ class ADE9000
 {
 	public:
 		ADE9000();
-		void SetupADE9000(void); 
+		void begin(void); 
 		
 		/*SPI Functions*/
 		void SPI_Init(uint32_t SPI_speed , uint8_t chipSelect_Pin);  		

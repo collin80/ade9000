@@ -77,7 +77,7 @@ Input: Register settings in header files
 Output: 
 */
 
-void ADE9000::SetupADE9000(void)
+void ADE9000::begin(void)
 {
 	 SPI_Write_16(ADDR_PGA_GAIN,ADE9000_PGA_GAIN);     
  	 SPI_Write_32(ADDR_CONFIG0,ADE9000_CONFIG0); 
@@ -184,15 +184,15 @@ float ADE9000::THD()
 {
 	//%THD on Current Channel A = AITHD × 2 −27 × 100%
 	uint32_t valu = (SPI_Read_32(ADDR_AVTHD));
-	return valu / 13421772.8;
+	return valu / 1342177.28;
 }
 
 //power factor as a percentage (try Average of A and B power factors?)
 float ADE9000::PF()
 {
 //Power Factor = xPF × 2 −27 * 100 to turn it to percentage
-	uint32_t valu = (SPI_Read_32(ADDR_APF));
-	return valu / 13421772.8;
+	int32_t valu = (int32_t)(SPI_Read_32(ADDR_APF));
+	return valu / 1342177.28;
 }
 
 //voltage gain factor to turn reading into actual voltage - Phase A
