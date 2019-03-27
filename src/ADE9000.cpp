@@ -13,6 +13,9 @@
 
 Preferences preferences;
 
+//uncomment next line to get debugging output from this library
+#define DEBUGADE
+
 ADE9000::ADE9000()
 {
 		_chipSelect_Pin = 25;
@@ -103,6 +106,10 @@ void ADE9000::begin(void)
 float ADE9000::L1I()
 {
 	int32_t valu = int32_t (SPI_Read_32(ADDR_AIRMS));
+#ifdef DEBUGADE
+	Serial.print("AIRMS ");
+	Serial.println(valu, HEX);
+#endif
 	float outVal = valu * m_L1ical;
 	return outVal;
 }
@@ -111,6 +118,10 @@ float ADE9000::L1I()
 float ADE9000::L2I()
 {
 	int32_t valu = int32_t (SPI_Read_32(ADDR_BIRMS));
+#ifdef DEBUGADE
+	Serial.print("BIRMS ");
+	Serial.println(valu, HEX);
+#endif
 	float outVal = valu * m_L2ical;
 	return outVal;
 }
@@ -119,6 +130,10 @@ float ADE9000::L2I()
 float ADE9000::L1Vrms()
 {
 	int32_t valu = int32_t (SPI_Read_32(ADDR_AVRMS));
+#ifdef DEBUGADE
+	Serial.print("AVRMS ");
+	Serial.println(valu, HEX);
+#endif
 	float outVal = valu * m_L1vcal;
 	return outVal;
 }
@@ -127,6 +142,10 @@ float ADE9000::L1Vrms()
 float ADE9000::L2Vrms()
 {
 	int32_t valu = int32_t (SPI_Read_32(ADDR_BVRMS));
+#ifdef DEBUGADE
+	Serial.print("BVRMS ");
+	Serial.println(valu, HEX);
+#endif
 	float outVal = valu * m_L2vcal;
 	return outVal;
 }
@@ -153,6 +172,10 @@ float ADE9000::Watt()
 float ADE9000::L1VA()
 {
 	int32_t valu = int32_t (SPI_Read_32(ADDR_AFVA));
+#ifdef DEBUGADE
+	Serial.print("AFVA ");
+	Serial.println(valu, HEX);
+#endif
 	float outVal = valu * m_L1vcal * m_L1ical;
 	return outVal;
 }
@@ -161,6 +184,10 @@ float ADE9000::L1VA()
 float ADE9000::L2VA()
 {
 	int32_t valu = int32_t (SPI_Read_32(ADDR_BFVA));
+#ifdef DEBUGADE
+	Serial.print("AFVA ");
+	Serial.println(valu, HEX);
+#endif
 	float outVal = valu * m_L2vcal * m_L2ical;
 	return outVal;
 }
@@ -176,6 +203,10 @@ float ADE9000::frequency()
 {
 	//frequency is (8000 * 2^16) / ((valu + 1);
 	uint32_t valu = (SPI_Read_32(ADDR_APERIOD));
+#ifdef DEBUGADE
+	Serial.print("APERIOD ");
+	Serial.println(valu, HEX);
+#endif
 	return 524288000.0 / (valu + 1.0);
 }
 
@@ -184,6 +215,10 @@ float ADE9000::THD()
 {
 	//%THD on Current Channel A = AITHD × 2 −27 × 100%
 	uint32_t valu = (SPI_Read_32(ADDR_AVTHD));
+#ifdef DEBUGADE
+	Serial.print("AVTHD ");
+	Serial.println(valu, HEX);
+#endif
 	return valu / 1342177.28;
 }
 
@@ -192,6 +227,10 @@ float ADE9000::PF()
 {
 //Power Factor = xPF × 2 −27 * 100 to turn it to percentage
 	int32_t valu = (int32_t)(SPI_Read_32(ADDR_APF));
+#ifdef DEBUGADE
+	Serial.print("APF ");
+	Serial.println(valu, HEX);
+#endif
 	return valu / 1342177.28;
 }
 
