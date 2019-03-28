@@ -31,6 +31,17 @@ void loop()
   Serial.print("Phase B Voltage: ");
   Serial.println(ade.L2Vrms());
 
+  Serial.print("Phase A Apparent VoltAmps: ");
+  Serial.println(ade.L1VA());
+  Serial.print("Phase B Apparent VoltAmps: ");
+  Serial.println(ade.L2VA());
+  
+  Serial.print("Phase A Reactive VoltAmps: ");
+  Serial.println(ade.L1VAR());
+  Serial.print("Phase B Reactive VoltAmps: ");
+  Serial.println(ade.L2VAR());
+
+
   Serial.print("Frequency: ");
   Serial.println(ade.frequency());
   Serial.print("Power Factor: ");
