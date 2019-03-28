@@ -298,8 +298,10 @@ class ADE9000
 		float L1Watt(); //instantaneous wattage on phase A
 		float L2Watt(); //instantaneous wattage on phase B
 		float Watt(); //total wattage of A and B together
-		float L1VA(); //instantaneous apparent power in volt amps on phase A
-		float L2VA(); //instantaneous apparent power in volt amps on phase B
+		float L1VA(); //apparent power in volt amps on phase A
+		float L2VA(); //apparent power in volt amps on phase B
+		float L1VAR(); //reactive power in volt amps on phase A
+		float L2VAR(); //reactive power in volt amps on phase B
 		float VA();   //total volt amps of phase A and B together
 		float frequency(); //line frequency of the system (measured at phase A)
 		float THD(); //total harmonic distortion, as a percentage
@@ -323,4 +325,3 @@ class ADE9000
 };
 
 #endif
-

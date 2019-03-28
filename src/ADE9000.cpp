@@ -171,9 +171,9 @@ float ADE9000::Watt()
 //instantaneous apparent power in volt amps on phase A
 float ADE9000::L1VA()
 {
-	int32_t valu = int32_t (SPI_Read_32(ADDR_AFVA));
+	int32_t valu = int32_t (SPI_Read_32(ADDR_AVA));
 #ifdef DEBUGADE
-	Serial.print("AFVA ");
+	Serial.print("AVA ");
 	Serial.println(valu, HEX);
 #endif
 	float outVal = valu * m_L1vcal * m_L1ical;
@@ -183,9 +183,31 @@ float ADE9000::L1VA()
 //instantaneous apparent power in volt amps on phase B
 float ADE9000::L2VA()
 {
-	int32_t valu = int32_t (SPI_Read_32(ADDR_BFVA));
+	int32_t valu = int32_t (SPI_Read_32(ADDR_BVA));
 #ifdef DEBUGADE
-	Serial.print("AFVA ");
+	Serial.print("BVA ");
+	Serial.println(valu, HEX);
+#endif
+	float outVal = valu * m_L2vcal * m_L2ical;
+	return outVal;
+}
+
+float ADE9000::L1VAR()
+{
+	int32_t valu = int32_t (SPI_Read_32(ADDR_AVAR));
+#ifdef DEBUGADE
+	Serial.print("AVAR ");
+	Serial.println(valu, HEX);
+#endif
+	float outVal = valu * m_L1vcal * m_L1ical;
+	return outVal;
+}
+
+float ADE9000::L2VAR()
+{
+	int32_t valu = int32_t (SPI_Read_32(ADDR_BVAR));
+#ifdef DEBUGADE
+	Serial.print("BVAR ");
 	Serial.println(valu, HEX);
 #endif
 	float outVal = valu * m_L2vcal * m_L2ical;
