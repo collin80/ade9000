@@ -14,7 +14,7 @@
 Preferences preferences;
 
 //uncomment next line to get debugging output from this library
-#define DEBUGADE
+//#define DEBUGADE
 
 ADE9000::ADE9000()
 {

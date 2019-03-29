@@ -11,11 +11,11 @@ void setup()
   //Note 20MHz doesn't seem to test to work. You have been warned! Leave it at 8Mhz and you'll be happy
   ade.SPI_Init(8000000, 25);
   ade.begin(); //set up the chip and get it running
-  ade.L1ICal(0.000001); //set these to the proper values
-  ade.L2ICal(0.000001); //easier said than done probably.
+  ade.L1ICal(0.00000235); //set these to the proper values
+  ade.L2ICal(0.00000235); //easier said than done probably.
   ade.L1VCal(0.00000988); //But, run program, measure values externally, calibrate, retry.
   ade.L2VCal(0.00000988);
-  ade.L1PCal(0.000001); //Calibration for power - watts, VA, VAR
+  ade.L1PCal(0.003449712); //Calibration for power - watts, VA, VAR
   ade.L2PCal(0.000001);
   Serial.println("Set up finished");
 }
