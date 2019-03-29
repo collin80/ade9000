@@ -15,6 +15,8 @@ void setup()
   ade.L2ICal(0.000001); //easier said than done probably.
   ade.L1VCal(0.00000988); //But, run program, measure values externally, calibrate, retry.
   ade.L2VCal(0.00000988);
+  ade.L1PCal(0.000001); //Calibration for power - watts, VA, VAR
+  ade.L2PCal(0.000001);
   Serial.println("Set up finished");
 }
 
@@ -41,6 +43,10 @@ void loop()
   Serial.print("Phase B Reactive VoltAmps: ");
   Serial.println(ade.L2VAR());
 
+  Serial.print("Phase A Watts: ");
+  Serial.println(ade.L1Watt());
+  Serial.print("Phase B Watts: ");
+  Serial.println(ade.L2Watt());
 
   Serial.print("Frequency: ");
   Serial.println(ade.frequency());

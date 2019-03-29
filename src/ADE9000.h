@@ -306,6 +306,7 @@ class ADE9000
 		float frequency(); //line frequency of the system (measured at phase A)
 		float THD(); //total harmonic distortion, as a percentage
 		float PF(); //power factor as a percentage
+
 		void L1VCal(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase A
 		void L2VCal(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase B
 		float L1VCal(); //get factor for Phase A
@@ -315,13 +316,18 @@ class ADE9000
 		void L2ICal(float calFactor); //current gain factor to turn reading into actual current - Phase B
 		float L1ICal(); //get factor for Phase A
 		float L2ICal(); //get factor for Phase B
+
+		void L1PCal(float calFactor); //power gain factor to turn reading into actual wattage - Phase A
+		void L2PCal(float calFactor); //power gain factor to turn reading into actual wattage - Phase B
+		float L1PCal(); //get factor for Phase A
+		float L2PCal(); //get factor for Phase B
+
 		void saveParams();
 		void loadParams();
 
-		
 	private:
 		uint8_t  _chipSelect_Pin;
-		float m_L1vcal, m_L2vcal, m_L1ical, m_L2ical;
+		float m_L1vcal, m_L2vcal, m_L1ical, m_L2ical, m_L1pcal, m_L2pcal;
 };
 
 #endif

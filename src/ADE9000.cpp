@@ -45,6 +45,9 @@ void ADE9000::loadParams()
 		m_L2vcal = preferences.getFloat("L2VCal", 1.0f);
 		m_L1ical = preferences.getFloat("L1ICal", 1.0f);
 		m_L2ical = preferences.getFloat("L2ICal", 1.0f);
+		m_L1pcal = preferences.getFloat("L1PCal", 1.0f);
+		m_L2pcal = preferences.getFloat("L2PCal", 1.0f);
+
     preferences.end();
 }
 
@@ -70,6 +73,9 @@ void ADE9000::saveParams()
 		preferences.putFloat("L2VCal", m_L2vcal);
 		preferences.putFloat("L1ICal", m_L1ical);
 		preferences.putFloat("L2ICal", m_L2ical);
+		preferences.putFloat("L1PCal", m_L1pcal);
+		preferences.putFloat("L2PCal", m_L2pcal);
+
     preferences.end();
 }
 
@@ -153,13 +159,25 @@ float ADE9000::L2Vrms()
 //instantaneous wattage on phase A
 float ADE9000::L1Watt()
 {
-	return L1Vrms() * L1I();
+	int32_t valu = int32_t (SPI_Read_32(ADDR_AWATT));
+#ifdef DEBUGADE
+	Serial.print("AWATT ");
+	Serial.println(valu, HEX);
+#endif
+	float outVal = valu * m_L1pcal;
+	return outVal;
 }
 
 //instantaneous wattage on phase B
 float ADE9000::L2Watt()
 {
-	return L2Vrms() * L2I();
+	int32_t valu = int32_t (SPI_Read_32(ADDR_BWATT));
+#ifdef DEBUGADE
+	Serial.print("BWATT ");
+	Serial.println(valu, HEX);
+#endif
+	float outVal = valu * m_L1pcal;
+	return outVal;	
 }
 
 //total wattage of A and B together
@@ -176,7 +194,7 @@ float ADE9000::L1VA()
 	Serial.print("AVA ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L1vcal * m_L1ical;
+	float outVal = valu * m_L1pcal;
 	return outVal;
 }
 
@@ -188,7 +206,7 @@ float ADE9000::L2VA()
 	Serial.print("BVA ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L2vcal * m_L2ical;
+	float outVal = valu * m_L1pcal;
 	return outVal;
 }
 
@@ -199,7 +217,7 @@ float ADE9000::L1VAR()
 	Serial.print("AVAR ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L1vcal * m_L1ical;
+	float outVal = valu * m_L1pcal;
 	return outVal;
 }
 
@@ -210,7 +228,7 @@ float ADE9000::L2VAR()
 	Serial.print("BVAR ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L2vcal * m_L2ical;
+	float outVal = valu * m_L1pcal;
 	return outVal;
 }
 
@@ -302,6 +320,30 @@ float ADE9000::L1ICal()
 float ADE9000::L2ICal()
 {
 	return m_L2ical;
+} 
+
+//current gain factor to turn reading into actual current - Phase A
+void ADE9000::L1PCal(float calFactor)
+{
+	m_L1pcal = calFactor;
+}
+
+//current gain factor to turn reading into actual current - Phase B
+void ADE9000::L2PCal(float calFactor)
+{
+	m_L2pcal = calFactor;
+}
+
+//get factor for Phase A
+float ADE9000::L1PCal()
+{
+	return m_L1pcal;
+}
+
+//get factor for Phase B
+float ADE9000::L2PCal()
+{
+	return m_L2pcal;
 } 
 
 /* 
