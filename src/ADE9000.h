@@ -324,6 +324,7 @@ class ADE9000
 
 		void saveParams();
 		void loadParams();
+		float KWH;
 
 	private:
 		uint8_t  _chipSelect_Pin;

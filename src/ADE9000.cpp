@@ -47,6 +47,8 @@ void ADE9000::loadParams()
 		m_L2ical = preferences.getFloat("L2ICal", 1.0f);
 		m_L1pcal = preferences.getFloat("L1PCal", 1.0f);
 		m_L2pcal = preferences.getFloat("L2PCal", 1.0f);
+				KWH = preferences.getFloat("KWH", 1.0f);
+ 
 
     preferences.end();
 }
@@ -75,6 +77,8 @@ void ADE9000::saveParams()
 		preferences.putFloat("L2ICal", m_L2ical);
 		preferences.putFloat("L1PCal", m_L1pcal);
 		preferences.putFloat("L2PCal", m_L2pcal);
+		preferences.putFloat("KWH", KWH);
+
 
     preferences.end();
 }
@@ -111,24 +115,21 @@ void ADE9000::begin(void)
 //instantaneous current on phase A (rms current)
 float ADE9000::L1I()
 {
-	int32_t valu = int32_t (SPI_Read_32(ADDR_AIRMS));
-#ifdef DEBUGADE
-	Serial.print("AIRMS ");
-	Serial.println(valu, HEX);
-#endif
-	float outVal = valu * m_L1ical;
+	
+
+	int32_t valu = int32_t (SPI_Read_32(ADDR_AIRMS)); //Get rms current for phase A
+	float outVal = valu * m_L1ical;			  //Apply calibration factor
+	if(SPI_Read_16(ADDR_PHSIGN)&1)outVal*=-1;  //If bit 0 of sign register value is negative 
 	return outVal;
 }
 
 //instantaneous current on phase B (rms current)
 float ADE9000::L2I()
 {
+	
 	int32_t valu = int32_t (SPI_Read_32(ADDR_BIRMS));
-#ifdef DEBUGADE
-	Serial.print("BIRMS ");
-	Serial.println(valu, HEX);
-#endif
 	float outVal = valu * m_L2ical;
+  	if(SPI_Read_16(ADDR_PHSIGN)&4)outVal*=-1;  //If bit 0 of sign register value is negativ	
 	return outVal;
 }
 
@@ -176,7 +177,7 @@ float ADE9000::L2Watt()
 	Serial.print("BWATT ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L1pcal;
+	float outVal = valu * m_L2pcal;
 	return outVal;	
 }
 
@@ -206,7 +207,7 @@ float ADE9000::L2VA()
 	Serial.print("BVA ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L1pcal;
+	float outVal = valu * m_L2pcal;
 	return outVal;
 }
 
