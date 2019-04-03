@@ -310,19 +310,52 @@ class ADE9000
 		void flipCurrentDirection(bool flip);
 
 		void L1VCal(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase A
+		void L1VCalPos(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase A - Positive Current Flow 
+		void L1VCalNeg(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase A - Negative Current Flow
+
 		void L2VCal(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase B
+		void L2VCalPos(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase B - Positive Current Flow 
+		void L2VCalNeg(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase B - Negative Current Flow
+
 		float L1VCal(); //get factor for Phase A
+		float L1VCalPos(); //get factor for Phase A
+		float L1VCalNeg(); //get factor for Phase A
+
 		float L2VCal(); //get factor for Phase B 
+		float L2VCalPos(); //get factor for Phase B
+		float L2VCalNeg(); //get factor for Phase B
 
 		void L1ICal(float calFactor); //current gain factor to turn reading into actual current - Phase A
+		void L1ICalPos(float calFactor); //current gain factor to turn reading into actual current - Phase A
+		void L1ICalNeg(float calFactor); //current gain factor to turn reading into actual current - Phase A
+
 		void L2ICal(float calFactor); //current gain factor to turn reading into actual current - Phase B
+		void L2ICalPos(float calFactor); //current gain factor to turn reading into actual current - Phase A
+		void L2ICalNeg(float calFactor); //current gain factor to turn reading into actual current - Phase A
+
 		float L1ICal(); //get factor for Phase A
+		float L1ICalPos(); //get factor for Phase A
+		float L1ICalNeg(); //get factor for Phase A
+
 		float L2ICal(); //get factor for Phase B
+		float L2ICalPos(); //get factor for Phase B
+		float L2ICalNeg(); //get factor for Phase B
 
 		void L1PCal(float calFactor); //power gain factor to turn reading into actual wattage - Phase A
+		void L1PCalPos(float calFactor); //power gain factor to turn reading into actual wattage - Phase A
+		void L1PCalNeg(float calFactor); //power gain factor to turn reading into actual wattage - Phase A
+
 		void L2PCal(float calFactor); //power gain factor to turn reading into actual wattage - Phase B
+		void L2PCalPos(float calFactor); //power gain factor to turn reading into actual wattage - Phase A
+		void L2PCalNeg(float calFactor); //power gain factor to turn reading into actual wattage - Phase A
+
 		float L1PCal(); //get factor for Phase A
+		float L1PCalPos(); //get factor for Phase A
+		float L1PCalNeg(); //get factor for Phase A
+
 		float L2PCal(); //get factor for Phase B
+		float L2PCalPos(); //get factor for Phase A
+		float L2PCalNeg(); //get factor for Phase A
 
 		void saveParams();
 		void loadParams();
@@ -330,7 +363,12 @@ class ADE9000
 
 	private:
 		uint8_t  _chipSelect_Pin;
-		float m_L1vcal, m_L2vcal, m_L1ical, m_L2ical, m_L1pcal, m_L2pcal;
+		float m_L1vcal_p, m_L1vcal_n; //Voltage cal for positive and negative current
+		float m_L2vcal_p, m_L2vcal_n; //Voltage cal for positive and negative current
+		float m_L1ical_p, m_L1ical_n; //Current cal for positive and negative current
+		float m_L2ical_p, m_L2ical_n; //Current cal for positive and negative current
+		float m_L1pcal_p, m_L1pcal_n; //Power cal for positive and negative current
+		float m_L2pcal_p, m_L2pcal_n; //Power cal for positive and negative current
 		bool m_flipCurr;
 };
 

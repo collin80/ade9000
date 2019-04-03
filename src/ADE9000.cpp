@@ -42,15 +42,20 @@ void ADE9000::loadParams()
 		OverVSetpoint = preferences.getFloat("BPGain", 1.0f);
 		OverVSetpoint = preferences.getFloat("CPGain", 1.0f);
 		*/
-		m_L1vcal = preferences.getFloat("L1VCal", 1.0f);
-		m_L2vcal = preferences.getFloat("L2VCal", 1.0f);
-		m_L1ical = preferences.getFloat("L1ICal", 1.0f);
-		m_L2ical = preferences.getFloat("L2ICal", 1.0f);
-		m_L1pcal = preferences.getFloat("L1PCal", 1.0f);
-		m_L2pcal = preferences.getFloat("L2PCal", 1.0f);
-				KWH = preferences.getFloat("KWH", 1.0f);
+		m_L1vcal_p = preferences.getFloat("L1VCal", 1.0f);
+		m_L1vcal_n = preferences.getFloat("L1VCalNeg", m_L1vcal_p);
+		m_L2vcal_p = preferences.getFloat("L2VCal", 1.0f);
+		m_L2vcal_n = preferences.getFloat("L2VCalNeg", m_L2vcal_p);
+		m_L1ical_p = preferences.getFloat("L1ICal", 1.0f);
+		m_L1ical_n = preferences.getFloat("L1ICalNeg", m_L1ical_p);
+		m_L2ical_p = preferences.getFloat("L2ICal", 1.0f);
+		m_L2ical_n = preferences.getFloat("L2ICalNeg", m_L2ical_p);
+		m_L1pcal_p = preferences.getFloat("L1PCal", 1.0f);
+		m_L1pcal_n = preferences.getFloat("L1PCalNeg", m_L1pcal_p);
+		m_L2pcal_p = preferences.getFloat("L2PCal", 1.0f);
+		m_L2pcal_n = preferences.getFloat("L2PCalNeg", m_L2pcal_p);
+		KWH = preferences.getFloat("KWH", 1.0f);
  
-
     preferences.end();
 }
 
@@ -72,14 +77,19 @@ void ADE9000::saveParams()
 		preferences.putFloat("BPGain", 1.0f);
 		preferences.putFloat("CPGain", 1.0f);
 		*/
-		preferences.putFloat("L1VCal", m_L1vcal);
-		preferences.putFloat("L2VCal", m_L2vcal);
-		preferences.putFloat("L1ICal", m_L1ical);
-		preferences.putFloat("L2ICal", m_L2ical);
-		preferences.putFloat("L1PCal", m_L1pcal);
-		preferences.putFloat("L2PCal", m_L2pcal);
+		preferences.putFloat("L1VCal", m_L1vcal_p);
+		preferences.putFloat("L2VCal", m_L2vcal_p);
+		preferences.putFloat("L1ICal", m_L1ical_p);
+		preferences.putFloat("L2ICal", m_L2ical_p);
+		preferences.putFloat("L1PCal", m_L1pcal_p);
+		preferences.putFloat("L2PCal", m_L2pcal_p);
+		preferences.putFloat("L1VCalNeg", m_L1vcal_n);
+		preferences.putFloat("L2VCalNeg", m_L2vcal_n);
+		preferences.putFloat("L1ICalNeg", m_L1ical_n);
+		preferences.putFloat("L2ICalNeg", m_L2ical_n);
+		preferences.putFloat("L1PCalNeg", m_L1pcal_n);
+		preferences.putFloat("L2PCalNeg", m_L2pcal_n);
 		preferences.putFloat("KWH", KWH);
-
 
     preferences.end();
 }
@@ -121,74 +131,89 @@ void ADE9000::flipCurrentDirection(bool flip)
 //instantaneous current on phase A (rms current)
 float ADE9000::L1I()
 {
-	
-
+	float outVal;
 	int32_t valu = int32_t (SPI_Read_32(ADDR_AIRMS)); //Get rms current for phase A
-	float outVal = valu * m_L1ical;			  //Apply calibration factor
-	if(SPI_Read_16(ADDR_PHSIGN)&1)outVal*=-1;  //If bit 0 of sign register value is negative
-	if (m_flipCurr) outVal *= -1;
+	if(SPI_Read_16(ADDR_PHSIGN)&1)valu*=-1;  //If bit 0 of sign register value is negative
+	if (m_flipCurr) valu *= -1;
+	if (valu < 0) outVal = valu * m_L1ical_n;			  //Apply calibration factor
+	else outVal = valu * m_L1ical_p;
 	return outVal;
 }
 
 //instantaneous current on phase B (rms current)
 float ADE9000::L2I()
 {
-	
-	int32_t valu = int32_t (SPI_Read_32(ADDR_BIRMS));
-	float outVal = valu * m_L2ical;
-  	if(SPI_Read_16(ADDR_PHSIGN)&4)outVal*=-1;  //If bit 0 of sign register value is negativ	
-		if (m_flipCurr) outVal *= -1;
+	float outVal;
+	int32_t valu = int32_t (SPI_Read_32(ADDR_BIRMS)); //Get rms current for phase A
+	if(SPI_Read_16(ADDR_PHSIGN)&4)valu*=-1;  //If bit 0 of sign register value is negative
+	if (m_flipCurr) valu *= -1;
+	if (valu < 0) outVal = valu * m_L2ical_n;			  //Apply calibration factor
+	else outVal = valu * m_L2ical_p;
 	return outVal;
 }
 
 //instantaneous rms voltage on phase A
 float ADE9000::L1Vrms()
 {
+	float outVal;
+	bool negCurr = SPI_Read_16(ADDR_PHSIGN)&1;
+	if (m_flipCurr) negCurr = !negCurr;
 	int32_t valu = int32_t (SPI_Read_32(ADDR_AVRMS));
 #ifdef DEBUGADE
 	Serial.print("AVRMS ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L1vcal;
+	if (negCurr) outVal = valu * m_L1vcal_n;
+	else outVal = valu * m_L1vcal_p;
 	return outVal;
 }
 
 //instantaneous rms voltage on phase B
 float ADE9000::L2Vrms()
 {
+	float outVal;
+	bool negCurr = SPI_Read_16(ADDR_PHSIGN)&4;
+	if (m_flipCurr) negCurr = !negCurr;
 	int32_t valu = int32_t (SPI_Read_32(ADDR_BVRMS));
 #ifdef DEBUGADE
 	Serial.print("BVRMS ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L2vcal;
+	if (negCurr) outVal = valu * m_L2vcal_n;
+	else outVal = valu * m_L2vcal_p;
 	return outVal;
 }
 
 //instantaneous wattage on phase A
 float ADE9000::L1Watt()
 {
+	float outVal;
 	int32_t valu = int32_t (SPI_Read_32(ADDR_AWATT));
 #ifdef DEBUGADE
 	Serial.print("AWATT ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L1pcal;
-	if (m_flipCurr) outVal *= -1;
+	if (m_flipCurr) valu *= -1;
+	if (valu < 0) outVal = valu * m_L1pcal_n;
+	else outVal = valu * m_L1pcal_p;
+
 	return outVal;
 }
 
 //instantaneous wattage on phase B
 float ADE9000::L2Watt()
 {
+	float outVal;
 	int32_t valu = int32_t (SPI_Read_32(ADDR_BWATT));
 #ifdef DEBUGADE
-	Serial.print("BWATT ");
+	Serial.print("AWATT ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L2pcal;
-	if (m_flipCurr) outVal *= -1;
-	return outVal;	
+	if (m_flipCurr) valu *= -1;
+	if (valu < 0) outVal = valu * m_L2pcal_n;
+	else outVal = valu * m_L2pcal_p;
+	
+	return outVal;
 }
 
 //total wattage of A and B together
@@ -205,7 +230,7 @@ float ADE9000::L1VA()
 	Serial.print("AVA ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L1pcal;
+	float outVal = valu * m_L1pcal_p;
 	return outVal;
 }
 
@@ -217,7 +242,7 @@ float ADE9000::L2VA()
 	Serial.print("BVA ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L2pcal;
+	float outVal = valu * m_L2pcal_p;
 	return outVal;
 }
 
@@ -228,7 +253,7 @@ float ADE9000::L1VAR()
 	Serial.print("AVAR ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L1pcal;
+	float outVal = valu * m_L1pcal_p;
 	return outVal;
 }
 
@@ -239,7 +264,7 @@ float ADE9000::L2VAR()
 	Serial.print("BVAR ");
 	Serial.println(valu, HEX);
 #endif
-	float outVal = valu * m_L1pcal;
+	float outVal = valu * m_L1pcal_p;
 	return outVal;
 }
 
@@ -288,74 +313,224 @@ float ADE9000::PF()
 //voltage gain factor to turn reading into actual voltage - Phase A
 void ADE9000::L1VCal(float calFactor)
 {
-	m_L1vcal = calFactor;
+	m_L1vcal_p = calFactor;
+	m_L1vcal_n = calFactor;
 }
 
-//voltage gain factor to turn reading into actual voltage - Phase B
-void ADE9000::L2VCal(float calFactor)
+//voltage gain factor to turn reading into actual voltage - Phase A - Positive Current Flow 
+void ADE9000::L1VCalPos(float calFactor)
 {
-	m_L2vcal = calFactor;
+	m_L1vcal_p = calFactor;
+}
+
+//voltage gain factor to turn reading into actual voltage - Phase A - Negative Current Flow
+void ADE9000::L1VCalNeg(float calFactor)
+{
+	m_L1vcal_n = calFactor;
 }
 
 //get factor for Phase A
 float ADE9000::L1VCal()
 {
-	return m_L1vcal;
+	return m_L1vcal_p;
 } 
+
+//get factor for Phase A
+float ADE9000::L1VCalPos()
+{
+	return m_L1vcal_p;
+}
+
+//get factor for Phase A
+float ADE9000::L1VCalNeg()
+{
+	return m_L1vcal_n;
+}
+
+//voltage gain factor to turn reading into actual voltage - Phase B
+void ADE9000::L2VCal(float calFactor)
+{
+	m_L2vcal_p = calFactor;
+	m_L2vcal_n = calFactor;
+}
+
+//voltage gain factor to turn reading into actual voltage - Phase B - Positive Current Flow 
+void ADE9000::L2VCalPos(float calFactor)
+{
+	m_L2vcal_p = calFactor;
+}
+
+//voltage gain factor to turn reading into actual voltage - Phase B - Negative Current Flow
+void ADE9000::L2VCalNeg(float calFactor)
+{
+	m_L2vcal_n = calFactor;
+}
 
 //get factor for Phase B 
 float ADE9000::L2VCal()
 {
-	return m_L2vcal;
+	return m_L2vcal_p;
+}
+
+//get factor for Phase B
+float ADE9000::L2VCalPos()
+{
+	return m_L2vcal_p;
+}
+
+//get factor for Phase B
+float ADE9000::L2VCalNeg()
+{
+	return m_L2vcal_n;
 }
 
 //current gain factor to turn reading into actual current - Phase A
 void ADE9000::L1ICal(float calFactor)
 {
-	m_L1ical = calFactor;
+	m_L1ical_p = calFactor;
+	m_L1ical_n = calFactor;
 }
 
-//current gain factor to turn reading into actual current - Phase B
-void ADE9000::L2ICal(float calFactor)
+//current gain factor to turn reading into actual current - Phase A - Positive Current Flow 
+void ADE9000::L1ICalPos(float calFactor)
 {
-	m_L2ical = calFactor;
+	m_L1ical_p = calFactor;
+}
+
+//current gain factor to turn reading into actual current - Phase A - Negative Current Flow
+void ADE9000::L1ICalNeg(float calFactor)
+{
+	m_L1ical_n = calFactor;
 }
 
 //get factor for Phase A
 float ADE9000::L1ICal()
 {
-	return m_L1ical;
-}
-
-//get factor for Phase B
-float ADE9000::L2ICal()
-{
-	return m_L2ical;
+	return m_L1ical_p;
 } 
 
-//current gain factor to turn reading into actual current - Phase A
-void ADE9000::L1PCal(float calFactor)
+//get factor for Phase A
+float ADE9000::L1ICalPos()
 {
-	m_L1pcal = calFactor;
+	return m_L1ical_p;
+}
+
+//get factor for Phase A
+float ADE9000::L1ICalNeg()
+{
+	return m_L1ical_n;
 }
 
 //current gain factor to turn reading into actual current - Phase B
-void ADE9000::L2PCal(float calFactor)
+void ADE9000::L2ICal(float calFactor)
 {
-	m_L2pcal = calFactor;
+	m_L2ical_p = calFactor;
+	m_L2ical_n = calFactor;
+}
+
+//current gain factor to turn reading into actual current - Phase B - Positive Current Flow 
+void ADE9000::L2ICalPos(float calFactor)
+{
+	m_L2ical_p = calFactor;
+}
+
+//current gain factor to turn reading into actual current - Phase B - Negative Current Flow
+void ADE9000::L2ICalNeg(float calFactor)
+{
+	m_L2ical_n = calFactor;
+}
+
+//get factor for Phase B 
+float ADE9000::L2ICal()
+{
+	return m_L2ical_p;
+}
+
+//get factor for Phase B
+float ADE9000::L2ICalPos()
+{
+	return m_L2ical_p;
+}
+
+//get factor for Phase B
+float ADE9000::L2ICalNeg()
+{
+	return m_L2ical_n;
+}
+
+//power gain factor to turn reading into actual power - Phase A
+void ADE9000::L1PCal(float calFactor)
+{
+	m_L1pcal_p = calFactor;
+	m_L1pcal_n = calFactor;
+}
+
+//power gain factor to turn reading into actual power - Phase A - Positive Current Flow 
+void ADE9000::L1PCalPos(float calFactor)
+{
+	m_L1pcal_p = calFactor;
+}
+
+//power gain factor to turn reading into actual power - Phase A - Negative Current Flow
+void ADE9000::L1PCalNeg(float calFactor)
+{
+	m_L1pcal_n = calFactor;
 }
 
 //get factor for Phase A
 float ADE9000::L1PCal()
 {
-	return m_L1pcal;
+	return m_L1pcal_p;
+} 
+
+//get factor for Phase A
+float ADE9000::L1PCalPos()
+{
+	return m_L1pcal_p;
+}
+
+//get factor for Phase A
+float ADE9000::L1PCalNeg()
+{
+	return m_L1pcal_n;
+}
+
+//power gain factor to turn reading into actual power - Phase B
+void ADE9000::L2PCal(float calFactor)
+{
+	m_L2pcal_p = calFactor;
+	m_L2pcal_n = calFactor;
+}
+
+//power gain factor to turn reading into actual power - Phase B - Positive Current Flow 
+void ADE9000::L2PCalPos(float calFactor)
+{
+	m_L2pcal_p = calFactor;
+}
+
+//power gain factor to turn reading into actual power - Phase B - Negative Current Flow
+void ADE9000::L2PCalNeg(float calFactor)
+{
+	m_L2pcal_n = calFactor;
+}
+
+//get factor for Phase B 
+float ADE9000::L2PCal()
+{
+	return m_L2pcal_p;
 }
 
 //get factor for Phase B
-float ADE9000::L2PCal()
+float ADE9000::L2PCalPos()
 {
-	return m_L2pcal;
-} 
+	return m_L2pcal_p;
+}
+
+//get factor for Phase B
+float ADE9000::L2PCalNeg()
+{
+	return m_L2pcal_n;
+}
 
 /* 
 Description: Initializes the arduino SPI port using SPI.h library
