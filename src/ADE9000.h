@@ -307,6 +307,8 @@ class ADE9000
 		float THD(); //total harmonic distortion, as a percentage
 		float PF(); //power factor as a percentage
 
+		void flipCurrentDirection(bool flip);
+
 		void L1VCal(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase A
 		void L2VCal(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase B
 		float L1VCal(); //get factor for Phase A
@@ -329,6 +331,7 @@ class ADE9000
 	private:
 		uint8_t  _chipSelect_Pin;
 		float m_L1vcal, m_L2vcal, m_L1ical, m_L2ical, m_L1pcal, m_L2pcal;
+		bool m_flipCurr;
 };
 
 #endif

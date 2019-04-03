@@ -19,6 +19,7 @@ Preferences preferences;
 ADE9000::ADE9000()
 {
 		_chipSelect_Pin = 25;
+		m_flipCurr = false;
 }
 
 void ADE9000::loadParams()
@@ -112,6 +113,11 @@ void ADE9000::begin(void)
 	 loadParams();
 }
 
+void ADE9000::flipCurrentDirection(bool flip)
+{
+	m_flipCurr = flip;
+}
+
 //instantaneous current on phase A (rms current)
 float ADE9000::L1I()
 {
@@ -119,7 +125,8 @@ float ADE9000::L1I()
 
 	int32_t valu = int32_t (SPI_Read_32(ADDR_AIRMS)); //Get rms current for phase A
 	float outVal = valu * m_L1ical;			  //Apply calibration factor
-	if(SPI_Read_16(ADDR_PHSIGN)&1)outVal*=-1;  //If bit 0 of sign register value is negative 
+	if(SPI_Read_16(ADDR_PHSIGN)&1)outVal*=-1;  //If bit 0 of sign register value is negative
+	if (m_flipCurr) outVal *= -1;
 	return outVal;
 }
 
@@ -130,6 +137,7 @@ float ADE9000::L2I()
 	int32_t valu = int32_t (SPI_Read_32(ADDR_BIRMS));
 	float outVal = valu * m_L2ical;
   	if(SPI_Read_16(ADDR_PHSIGN)&4)outVal*=-1;  //If bit 0 of sign register value is negativ	
+		if (m_flipCurr) outVal *= -1;
 	return outVal;
 }
 
@@ -166,6 +174,7 @@ float ADE9000::L1Watt()
 	Serial.println(valu, HEX);
 #endif
 	float outVal = valu * m_L1pcal;
+	if (m_flipCurr) outVal *= -1;
 	return outVal;
 }
 
@@ -178,6 +187,7 @@ float ADE9000::L2Watt()
 	Serial.println(valu, HEX);
 #endif
 	float outVal = valu * m_L2pcal;
+	if (m_flipCurr) outVal *= -1;
 	return outVal;	
 }
 
