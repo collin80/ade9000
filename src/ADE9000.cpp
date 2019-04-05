@@ -55,6 +55,7 @@ void ADE9000::loadParams()
 		m_L2pcal_p = preferences.getFloat("L2PCal", 1.0f);
 		m_L2pcal_n = preferences.getFloat("L2PCalNeg", m_L2pcal_p);
 		KWH = preferences.getFloat("KWH", 1.0f);
+		m_flipCurr = preferences.getInt("FlipCurr", 0);
  
     preferences.end();
 }
@@ -90,6 +91,7 @@ void ADE9000::saveParams()
 		preferences.putFloat("L1PCalNeg", m_L1pcal_n);
 		preferences.putFloat("L2PCalNeg", m_L2pcal_n);
 		preferences.putFloat("KWH", KWH);
+		preferences.putInt("FlipCurr", m_flipCurr);
 
     preferences.end();
 }
@@ -123,9 +125,10 @@ void ADE9000::begin(void)
 	 loadParams();
 }
 
-void ADE9000::flipCurrentDirection(bool flip)
+void ADE9000::flipCurrentDirection()
 {
-	m_flipCurr = flip;
+	m_flipCurr = !m_flipCurr;
+	saveParams();
 }
 
 //instantaneous current on phase A (rms current)

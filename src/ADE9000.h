@@ -307,7 +307,7 @@ class ADE9000
 		float THD(); //total harmonic distortion, as a percentage
 		float PF(); //power factor as a percentage
 
-		void flipCurrentDirection(bool flip);
+		void flipCurrentDirection();
 
 		void L1VCal(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase A
 		void L1VCalPos(float calFactor); //voltage gain factor to turn reading into actual voltage - Phase A - Positive Current Flow 
